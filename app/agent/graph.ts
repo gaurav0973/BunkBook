@@ -1,13 +1,21 @@
-import { StateGraph } from "@langchain/langgraph";
+import {
+    StateGraph,
+} from "@langchain/langgraph";
 
-// state
 import { AgentState } from "./state";
-
-// nodes
-import { chatNode } from "./nodes/chat";
+import {
+    chatNode,
+    toolsNode,
+} from "./nodes";
+import { toolsRouter } from "./routers";
 
 export const graph = new StateGraph(AgentState)
     .addNode("chat", chatNode)
+    .addNode("tools", toolsNode)
     .addEdge("__start__", "chat")
-    .addEdge("chat", "__end__")
+    .addConditionalEdges(
+        "chat",
+        toolsRouter,
+    )
+    .addEdge("tools", "chat")
     .compile();

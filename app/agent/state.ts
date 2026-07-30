@@ -1,4 +1,4 @@
-import { Annotation } from "@langchain/langgraph";
+import { Annotation, messagesStateReducer } from "@langchain/langgraph";
 import { BaseMessage } from "@langchain/core/messages";
 
 /**
@@ -12,7 +12,7 @@ export const AgentState = Annotation.Root({
 
     // conversation => user/assistant/tools 
     messages: Annotation<BaseMessage[]>({
-        reducer: (_, value) => value,
+        reducer: messagesStateReducer,
         default: () => [],
     }),
 
