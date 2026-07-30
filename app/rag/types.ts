@@ -1,3 +1,4 @@
+// Shared types across the RAG pipeline
 export type SourceType =
     | "pdf"
     | "youtube"
@@ -8,12 +9,8 @@ export type SourceType =
 
 export interface SourceMetadata {
     userId: string;
-
     notebookId: string;
-
     sourceId: string;
-
     sourceType: SourceType;
-
     sourceName: string;
 }

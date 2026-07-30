@@ -2,7 +2,6 @@ import { QdrantVectorStore } from "@langchain/qdrant";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { embeddingModel } from "@/app/ai/embeddings";
 
-
 const COLLECTION_NAME = "knowledge";
 
 const client = new QdrantClient({
@@ -12,7 +11,7 @@ const client = new QdrantClient({
 
 let vectorStore: QdrantVectorStore | null = null;
 
-export async function getVectorStore() {
+export async function getVectorStore(): Promise<QdrantVectorStore> {
     if (vectorStore) {
         return vectorStore;
     }
@@ -28,14 +27,10 @@ export async function getVectorStore() {
             },
         });
     }
-    vectorStore = await QdrantVectorStore.fromExistingCollection(
-        embeddingModel,
-        {
-            client,
-            collectionName: COLLECTION_NAME,
-        }
-    );
-    console.log("Succesfukkl")
+    vectorStore = await QdrantVectorStore.fromExistingCollection(embeddingModel, {
+        client,
+        collectionName: COLLECTION_NAME,
+    });
+    console.log("[VectorStore] Connected to Qdrant collection:", COLLECTION_NAME);
     return vectorStore;
 }
-

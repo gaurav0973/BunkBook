@@ -1,8 +1,9 @@
+import { ragTool } from "./rag";
 import { webSearchTool } from "./search";
 
-export { webSearchTool };
+export { ragTool, webSearchTool };
 
 
 export const tools = [
-    webSearchTool,
+    webSearchTool , ragTool,
 ];

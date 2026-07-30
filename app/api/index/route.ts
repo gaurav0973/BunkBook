@@ -6,7 +6,6 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        // Extract loader parameters and metadata (supports both flat and nested JSON payloads)
         const sourceParams = (body.source ?? body) as LoadSourceParams;
         const metadata = (body.metadata ?? body) as SourceMetadata;
 
@@ -20,7 +19,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 1. Load documents using appropriate document loader
+        // 1. Load documents using the appropriate document loader
         const documents = await loadSource(sourceParams);
 
         if (!documents || documents.length === 0) {
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 2. Chunk documents, attach metadata, and store vectors in Qdrant
+        // 2. Chunk, enrich, and store in Qdrant
         await indexDocuments(documents, metadata);
 
         return NextResponse.json({
@@ -50,9 +49,7 @@ export async function POST(request: NextRequest) {
                 message: "Failed to index documents.",
                 error: error?.message ?? "Internal server error.",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }
