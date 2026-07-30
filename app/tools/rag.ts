@@ -22,7 +22,8 @@ export const ragTool = tool(
         description: `Use this tool to answer questions using the indexed knowledge base.
 
 Use it whenever the user asks about:
-- Uploaded PDFs
+- Uploaded PDFs or resumes
+- User's name, profile, or background from uploaded documents
 - YouTube videos
 - Websites
 - Documents

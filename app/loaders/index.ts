@@ -1,3 +1,5 @@
+import { Document } from "@langchain/core/documents";
+
 import { loadDocx } from "./docx";
 import { loadMarkdown } from "./markdown";
 import { loadPdf } from "./pdf";
@@ -6,29 +8,26 @@ import { LoadSourceParams } from "./types";
 import { loadWebsite } from "./website";
 import { loadYoutube } from "./youtube";
 
-export async function loadSource(params: LoadSourceParams) {
-    switch (params.sourceType) {
+export async function loadSource(
+    options: LoadSourceParams
+): Promise<Document[]> {
+    switch (options.sourceType) {
         case "pdf":
-            return loadPdf(params.filePath);
-
-        case "youtube":
-            return loadYoutube(params.url);
-
-        case "website":
-            return loadWebsite(params.url);
-
-        case "markdown":
-            return loadMarkdown(params.filePath);
-
-        case "text":
-            return loadText(params.filePath);
+            return loadPdf(options.filePath);
 
         case "docx":
-            return loadDocx(params.filePath);
+            return loadDocx(options.filePath);
 
-        default:
-            throw new Error("Unsupported source type.");
+        case "markdown":
+            return loadMarkdown(options.filePath);
+
+        case "text":
+            return loadText(options.filePath);
+
+        case "website":
+            return loadWebsite(options.url);
+
+        case "youtube":
+            return loadYoutube(options.url);
     }
 }
-
-export * from "./types";

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FolderOpen, Plus } from "lucide-react";
 import ResourceCard from "@/app/components/ResourceCard";
-import UploadDialog from "@/app/components/UploadDialog";
+import UploadDialog, { UploadPayload } from "@/app/components/UploadDialog";
 import EmptyState from "@/app/components/EmptyState";
 
 interface Resource {
@@ -36,13 +36,44 @@ export default function ResourcesPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(resources));
   }, [resources]);
 
-  const handleUpload = (data: { title: string; type: "pdf" | "youtube" | "website" }) => {
+  const handleUpload = async (data: UploadPayload) => {
+    let response: Response;
+
+    if (data.type === "pdf" && data.file) {
+      const formData = new FormData();
+      formData.append("file", data.file);
+      formData.append("title", data.title);
+      formData.append("sourceType", "pdf");
+
+      response = await fetch("/api/index", {
+        method: "POST",
+        body: formData,
+      });
+    } else {
+      response = await fetch("/api/index", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: data.title,
+          sourceType: data.type,
+          url: data.url,
+        }),
+      });
+    }
+
+    const resultData = await response.json();
+
+    if (!response.ok || !resultData.success) {
+      throw new Error(resultData.message || resultData.error || "Failed to index document.");
+    }
+
     const newResource: Resource = {
       id: Date.now().toString(),
       title: data.title,
       type: data.type,
       uploadedAt: new Date().toISOString(),
     };
+
     setResources((prev) => [newResource, ...prev]);
   };
 
@@ -69,7 +100,7 @@ export default function ResourcesPage() {
             </h1>
             <p className="font-body text-sm text-pencil/50">
               {resources.length} resource{resources.length !== 1 ? "s" : ""}{" "}
-              indexed
+              indexed into Qdrant
             </p>
           </div>
         </div>
@@ -89,7 +120,7 @@ export default function ResourcesPage() {
             <FolderOpen size={32} strokeWidth={2} className="text-pencil/30" />
           }
           title="No resources yet"
-          description="Upload PDFs, paste YouTube links, or add websites to start building your knowledge base."
+          description="Upload PDFs, paste YouTube links, or add websites to index them into your Qdrant vector database."
           action={
             <button
               className="btn-sketchy"

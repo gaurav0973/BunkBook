@@ -8,8 +8,8 @@ export type SourceType =
     | "docx";
 
 export interface SourceMetadata {
-    userId: string;
-    notebookId: string;
+    userId?: string;
+    notebookId?: string;
     sourceId: string;
     sourceType: SourceType;
     sourceName: string;

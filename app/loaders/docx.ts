@@ -3,5 +3,6 @@ import { Document } from "@langchain/core/documents";
 
 export async function loadDocx(filePath: string): Promise<Document[]> {
     const loader = new DocxLoader(filePath);
+
     return await loader.load();
 }

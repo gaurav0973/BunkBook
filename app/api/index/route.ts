@@ -1,55 +1,150 @@
-import { NextRequest, NextResponse } from "next/server";
-import { loadSource, LoadSourceParams } from "@/app/loaders";
-import { indexDocuments, SourceMetadata } from "@/app/rag";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-export async function POST(request: NextRequest) {
+import { loadSource } from "@/app/loaders";
+import { LoadSourceParams } from "@/app/loaders/types";
+import { indexDocuments } from "@/app/rag/indexing/indexer";
+import { SourceMetadata, SourceType } from "@/app/rag/types";
+
+export async function POST(request: Request) {
     try {
-        const body = await request.json();
+        const contentType = request.headers.get("content-type") ?? "";
 
-        const sourceParams = (body.source ?? body) as LoadSourceParams;
-        const metadata = (body.metadata ?? body) as SourceMetadata;
+        let sourceParams: LoadSourceParams;
+        let metadata: SourceMetadata;
 
-        if (!sourceParams?.sourceType) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "Missing required parameter: sourceType.",
-                },
-                { status: 400 }
-            );
+        // ==========================================
+        // File Upload (PDF, DOCX, Markdown, Text)
+        // ==========================================
+        if (contentType.includes("multipart/form-data")) {
+            const formData = await request.formData();
+
+            const file = formData.get("file");
+
+            const sourceType = formData.get("sourceType");
+
+            if (!(file instanceof File)) {
+                return Response.json(
+                    {
+                        success: false,
+                        message: "File is required.",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            if (
+                sourceType !== "pdf" &&
+                sourceType !== "docx" &&
+                sourceType !== "markdown" &&
+                sourceType !== "text"
+            ) {
+                return Response.json(
+                    {
+                        success: false,
+                        message: "Invalid source type.",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const uploadsDir = path.join(process.cwd(), "uploads");
+
+            await fs.mkdir(uploadsDir, {
+                recursive: true,
+            });
+
+            const fileName = `${Date.now()}-${file.name}`;
+
+            const filePath = path.join(uploadsDir, fileName);
+
+            const buffer = Buffer.from(await file.arrayBuffer());
+
+            await fs.writeFile(filePath, buffer);
+
+            sourceParams = {
+                sourceType,
+                filePath,
+            };
+
+            metadata = {
+                sourceId: crypto.randomUUID(),
+                sourceName: file.name,
+                sourceType,
+                userId: undefined,
+                notebookId: undefined,
+            };
         }
 
-        // 1. Load documents using the appropriate document loader
+        // ==========================================
+        // Website / YouTube
+        // ==========================================
+        else {
+            const body = await request.json();
+
+            const { url, sourceType } = body;
+
+            if (!url) {
+                return Response.json(
+                    {
+                        success: false,
+                        message: "URL is required.",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            if (sourceType !== "website" && sourceType !== "youtube") {
+                return Response.json(
+                    {
+                        success: false,
+                        message: "Invalid source type.",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            sourceParams = {
+                sourceType,
+                url,
+            };
+
+            metadata = {
+                sourceId: crypto.randomUUID(),
+                sourceName: url,
+                sourceType,
+                userId: undefined,
+                notebookId: undefined,
+            };
+        }
+
         const documents = await loadSource(sourceParams);
 
-        if (!documents || documents.length === 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "No document content was retrieved.",
-                },
-                { status: 400 }
-            );
-        }
-
-        // 2. Chunk, enrich, and store in Qdrant
         await indexDocuments(documents, metadata);
 
-        return NextResponse.json({
+        return Response.json({
             success: true,
             message: "Documents indexed successfully.",
-            documentCount: documents.length,
         });
-    } catch (error: any) {
-        console.error("Error during document indexing:", error);
+    } catch (error) {
+        console.error("[INDEX_ROUTE_ERROR]", error);
 
-        return NextResponse.json(
+        return Response.json(
             {
                 success: false,
                 message: "Failed to index documents.",
-                error: error?.message ?? "Internal server error.",
             },
-            { status: 500 }
+            {
+                status: 500,
+            }
         );
     }
 }
