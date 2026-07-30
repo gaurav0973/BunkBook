@@ -3,7 +3,7 @@ import { tools } from "@/app/tools";
 
 // simple LLm call
 export const chatModel = new ChatOpenAI({
-    model: "gpt-5.4-mini",
+    model: "gpt-4o-mini",
     apiKey: process.env.OPENAI_API_KEY,
     temperature: 0,
 });

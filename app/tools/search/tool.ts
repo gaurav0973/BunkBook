@@ -3,7 +3,7 @@ import { tool } from "@langchain/core/tools";
 import { webSearchSchema } from "./schema";
 
 const tvlyClient = tavily({
-    apiKey: process.env.TAVILY_API_KEY,
+    apiKey: process.env.TAVILY_API_KEY || process.env.TVILY_API_KEY,
 });
 
 export const webSearchTool = tool(

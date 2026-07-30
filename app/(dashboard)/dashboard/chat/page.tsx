@@ -27,6 +27,15 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, userMessage]);
       setIsLoading(true);
 
+      const aiMessageId = (Date.now() + 1).toString();
+      const aiMessagePlaceholder: Message = {
+        id: aiMessageId,
+        role: "assistant",
+        content: "",
+      };
+
+      setMessages((prev) => [...prev, aiMessagePlaceholder]);
+
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -41,23 +50,39 @@ export default function ChatPage() {
 
         if (!response.ok) throw new Error("Failed to send message");
 
-        const data = await response.json();
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("No response body reader available.");
 
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: data.message || data.content || "I couldn't process that. Try again!",
-        };
+        const decoder = new TextDecoder();
+        let done = false;
+        let accumulatedContent = "";
 
-        setMessages((prev) => [...prev, aiMessage]);
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          done = readerDone;
+          if (value) {
+            const chunk = decoder.decode(value, { stream: !done });
+            accumulatedContent += chunk;
+
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === aiMessageId ? { ...msg, content: accumulatedContent } : msg
+              )
+            );
+          }
+        }
       } catch {
-        const errorMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content:
-            "✏️ Oops! Something went wrong. Make sure the backend is running and try again.",
-        };
-        setMessages((prev) => [...prev, errorMessage]);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId
+              ? {
+                  ...msg,
+                  content:
+                    "✏️ Oops! Something went wrong. Make sure the backend is running and try again.",
+                }
+              : msg
+          )
+        );
       } finally {
         setIsLoading(false);
       }
