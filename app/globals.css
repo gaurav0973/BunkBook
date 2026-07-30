@@ -1,26 +1,279 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --bg-paper: #fdfbf7;
+  --fg-pencil: #2d2d2d;
+  --muted: #e5e0d8;
+  --accent-red: #ff4d4d;
+  --accent-blue: #2d5da1;
+  --card-white: #ffffff;
+  --postit-yellow: #fff9c4;
+
+  /* Typography */
+  --font-heading: "Kalam", cursive;
+  --font-body: "Patrick Hand", cursive;
+
+  /* Wobbly border radii */
+  --radius-wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-wobbly-md: 15px 225px 15px 255px / 255px 15px 225px 15px;
+  --radius-wobbly-sm: 120px 10px 120px 10px / 10px 120px 10px 120px;
+  --radius-wobbly-pill: 255px 25px 225px 25px / 25px 225px 25px 255px;
+
+  /* Shadows (hard-offset, no blur) */
+  --shadow-sm: 3px 3px 0px 0px rgba(45, 45, 45, 0.1);
+  --shadow-md: 4px 4px 0px 0px #2d2d2d;
+  --shadow-lg: 8px 8px 0px 0px #2d2d2d;
+  --shadow-hover: 2px 2px 0px 0px #2d2d2d;
+  --shadow-active: 0px 0px 0px 0px #2d2d2d;
 }
 
+/* ─── Tailwind v4 Theme ─── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--bg-paper);
+  --color-pencil: var(--fg-pencil);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent-red);
+  --color-accent-blue: var(--accent-blue);
+  --color-card: var(--card-white);
+  --color-postit: var(--postit-yellow);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Base Styles ─── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-paper);
+  color: var(--fg-pencil);
+  font-family: var(--font-body);
+  background-image: radial-gradient(var(--muted) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* ─── Wobbly Card ─── */
+.wobbly {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+.wobbly-md {
+  border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px;
+}
+
+.wobbly-sm {
+  border-radius: 120px 10px 120px 10px / 10px 120px 10px 120px;
+}
+
+.wobbly-pill {
+  border-radius: 255px 25px 225px 25px / 25px 225px 25px 255px;
+}
+
+/* ─── Hard-Offset Shadows ─── */
+.shadow-hard {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-hard-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-hard-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-hard-hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* ─── Buttons ─── */
+.btn-sketchy {
+  font-family: var(--font-body);
+  background: var(--card-white);
+  color: var(--fg-pencil);
+  border: 3px solid var(--fg-pencil);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  box-shadow: var(--shadow-md);
+  padding: 0.75rem 2rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+}
+
+.btn-sketchy:hover {
+  background: var(--accent-red);
+  color: white;
+  box-shadow: var(--shadow-hover);
+  transform: translate(2px, 2px);
+}
+
+.btn-sketchy:active {
+  box-shadow: var(--shadow-active);
+  transform: translate(4px, 4px);
+}
+
+.btn-sketchy-secondary {
+  font-family: var(--font-body);
+  background: var(--muted);
+  color: var(--fg-pencil);
+  border: 3px solid var(--fg-pencil);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  box-shadow: var(--shadow-md);
+  padding: 0.75rem 2rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+}
+
+.btn-sketchy-secondary:hover {
+  background: var(--accent-blue);
+  color: white;
+  box-shadow: var(--shadow-hover);
+  transform: translate(2px, 2px);
+}
+
+.btn-sketchy-secondary:active {
+  box-shadow: var(--shadow-active);
+  transform: translate(4px, 4px);
+}
+
+/* ─── Input Styles ─── */
+.input-sketchy {
+  font-family: var(--font-body);
+  background: var(--card-white);
+  color: var(--fg-pencil);
+  border: 2px solid var(--fg-pencil);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  padding: 0.75rem 1rem;
+  font-size: 1.125rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-sketchy::placeholder {
+  color: rgba(45, 45, 45, 0.4);
+}
+
+.input-sketchy:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(45, 93, 161, 0.2);
+}
+
+/* ─── Wavy Underline ─── */
+.wavy-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.wavy-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 6'%3E%3Cpath d='M0 3 Q5 0 10 3 Q15 6 20 3 Q25 0 30 3 Q35 6 40 3' fill='none' stroke='%232d2d2d' stroke-width='1.5'/%3E%3C/svg%3E") repeat-x;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.wavy-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* ─── Tape Decoration ─── */
+.tape::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 80px;
+  height: 24px;
+  background: rgba(45, 45, 45, 0.08);
+  border: 1px solid rgba(45, 45, 45, 0.12);
+  z-index: 10;
+}
+
+/* ─── Tack Decoration ─── */
+.tack::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  background: var(--accent-red);
+  border: 2px solid var(--fg-pencil);
+  border-radius: 50%;
+  z-index: 10;
+  box-shadow: 2px 2px 0 0 var(--fg-pencil);
+}
+
+/* ─── Keyframe Animations ─── */
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes jiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-1deg); }
+  75% { transform: rotate(1deg); }
+}
+
+@keyframes scribble-in {
+  0% { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 3s ease-in-out infinite;
+}
+
+.animate-jiggle {
+  animation: jiggle 0.3s ease;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ─── Scrollbar Styling ─── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-paper);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border: 2px solid var(--fg-pencil);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: var(--postit-yellow);
+  color: var(--fg-pencil);
 }
