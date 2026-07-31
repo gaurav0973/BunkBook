@@ -43,7 +43,7 @@ function transcriptToDocuments(
     transcript: Awaited<ReturnType<typeof fetchTranscript>>,
     videoId: string
 ): Document[] {
-    return transcript.map((segment) => {
+    return transcript.map((segment:any) => {
         return new Document({
             pageContent: segment.text,
             metadata: {

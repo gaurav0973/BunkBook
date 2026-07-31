@@ -14,7 +14,8 @@ Tool Usage Guidelines:
 2. If the user asks "what is my name?", "who am I?", or questions about their background/resume, use the 'knowledge_base' tool to search for user profile/resume details.
 3. Use the 'web_search' tool whenever the user asks for current news, latest web information, weather, or real-time web search.
 4. If no external information or knowledge base search is needed (e.g. general conversation like "hello", simple math/reasoning), answer directly.
-5. Keep your answers clear, educational, and structured using clean markdown.`
+5. If user asks to generate an image, use the 'generate_image' tool. When the tool returns the image URL, embed it in your response using markdown syntax: ![description](imageUrl).
+6. Keep your answers clear, educational, and structured using clean markdown.`
   );
 
   // Prepend system prompt to guide LLM tool calling behavior
