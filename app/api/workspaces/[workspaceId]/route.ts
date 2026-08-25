@@ -4,11 +4,6 @@ import { ValidationError } from "@/types/app-error";
 import { getZodFieldErrors } from "@/types/zod-error";
 import { NextRequest, NextResponse } from "next/server";
 
-
-type RouteContext = {
-    params: Promise<{ workspaceId?: string }>;
-};
-//1. get a workspace by id for a user
 function parseWorkspaceId(params: unknown) {
     const parsed = workspaceIdParamSchema.safeParse(params);
     if (!parsed.success) {
@@ -16,6 +11,23 @@ function parseWorkspaceId(params: unknown) {
     }
     return parsed.data;
 }
+function parseUpdateBody(body: unknown) {
+    const parsed = updateWorkspaceSchema.safeParse(body);
+    if (!parsed.success) {
+        throw new ValidationError(
+            "Validation failed",
+            getZodFieldErrors(parsed.error),
+        );
+    }
+    return parsed.data;
+}
+
+type RouteContext = {
+    params: Promise<{ workspaceId?: string }>;
+};
+
+
+//1. get a workspace by id for a user
 export async function GET(request: NextRequest, { params }: RouteContext){
     const { workspaceId } = parseWorkspaceId(await params);
     const requestBody = await request.json();
@@ -28,16 +40,6 @@ export async function GET(request: NextRequest, { params }: RouteContext){
 
 
 //2. update a workspace by id for a user
-function parseUpdateBody(body: unknown) {
-    const parsed = updateWorkspaceSchema.safeParse(body);
-    if (!parsed.success) {
-        throw new ValidationError(
-            "Validation failed",
-            getZodFieldErrors(parsed.error),
-        );
-    }
-    return parsed.data;
-}
 export async function PATCH(req: NextRequest, { params }: RouteContext){
     const { workspaceId } = parseWorkspaceId(await params);
     const requestBody = await req.json();

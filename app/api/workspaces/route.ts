@@ -19,6 +19,8 @@ function parseCreateBody(body: unknown) {
 
     return parsed.data;
 }
+
+
 //1. list workspaces for a user
 export async function GET(req: NextRequest) {
     const requestBody = await req.json();
