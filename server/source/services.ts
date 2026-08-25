@@ -1,9 +1,10 @@
 import { Prisma } from "@/app/generated/prisma/browser";
 import { getWorkspaceByIdForUser } from "../workspace/services";
-import { CreateSourceInput, ListSourcesQuery } from "./validators";
+import { CreateSourceInput, ImportWebsiteInput, ListSourcesQuery } from "./validators";
 import { prisma } from "@/lib/prisma";
-import { deleteSourceRecord, findSourceByIdAndWorkspaceId, SourceRecord, sourceSelect } from "./repository";
+import { createSourceRecord, deleteSourceRecord, findSourceByIdAndWorkspaceId, SourceRecord, sourceSelect } from "./repository";
 import { NotFoundError } from "@/types/app-error";
+import { scrapeWebsite } from "@/lib/firecrawl";
 
 
 async function assertWorkspaceAccess(workspaceId: string, userId: string) {
@@ -67,9 +68,6 @@ export async function listSourcesForWorkspace(
     await assertWorkspaceAccess(workspaceId, userId);
     return findSourcesByWorkspaceId(workspaceId, filters);
 }
-
-
-
 export async function createTextOrMarkdownSource(
     workspaceId: string,
     userId: string,
@@ -84,9 +82,6 @@ export async function createTextOrMarkdownSource(
     //     status: "PENDING",
     // });
 }
-
-
-
 export async function bulkDeleteSourcesForWorkspace(
     workspaceId: string,
     userId: string,
@@ -96,4 +91,35 @@ export async function bulkDeleteSourcesForWorkspace(
     for (const sourceId of sourceIds) {
         await deleteSourceForWorkspace(workspaceId, sourceId, userId);
     }
+}
+
+async function createAndProcessSource(
+    data: Parameters<typeof createSourceRecord>[0],
+) {
+    const source = await createSourceRecord(data); //
+    // await enqueueSourceProcessing({
+    //     sourceId: source.id,
+    //     workspaceId: source.workspaceId,
+    // });
+
+    return source;
+}
+export async function importWebsiteSource(
+    workspaceId: string,
+    userId: string,
+    input: ImportWebsiteInput,
+) {
+    await getWorkspaceByIdForUser(workspaceId, userId);
+    const scraped = await scrapeWebsite(input.url);
+    return createAndProcessSource({
+        workspaceId,
+        type: "WEBSITE",
+        title: input.title || scraped.title || input.url,
+        content: scraped.markdown,
+        url: scraped.sourceUrl,
+        status: "PENDING",
+        metadata: {
+            importedFrom: scraped.sourceUrl,
+        },
+    });
 }
